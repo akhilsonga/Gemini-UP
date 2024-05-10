@@ -2,17 +2,11 @@ from duckduckgo_search import DDGS
 import re
 import os
 import pyttsx3
-from openai import OpenAI
 import json
 from datetime import datetime
-from groq import Groq
 from google.oauth2.service_account import Credentials
 import gspread
 import pandas as pd
-
-if os.getenv("GROQ_API_KEY") is None:
-    os.environ["GROQ_API_KEY"] = ''
-
 
 
 def read_entire_gspread_sheet_to_pandas(credentials_file, sheet_id):
@@ -71,51 +65,6 @@ def get_todays_date():
 dt = get_todays_date()
 
 
-def O_LLM_Mixtral(query):
-    print("Groq!")
-    client = Groq(
-        api_key="",
-    )
-
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": query,
-            }
-        ],
-        model="mixtral-8x7b-32768",
-        #model="gemma-7b-it",
-        temperature = 0,
-    )
-
-    response = chat_completion.choices[0].message.content
-    return response
-
-
-
-def O_LLM_llama3(query):
-    print("Groq!")
-    client = Groq(
-        api_key="",
-    )
-
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": query,
-            }
-        ],
-        model="llama3-8b-8192",
-        #model="gemma-7b-it",
-        temperature = 0,
-    )
-
-    response = chat_completion.choices[0].message.content
-    return response
-
-
 import google.generativeai as genai
 
 #Gemini 1.0 pro, good not great need to test on 1.5 pro in google hackathon
@@ -127,28 +76,10 @@ def O_LLM_gemini(query):
     response = model.generate_content(query)
     resp = response.text
     return resp
-
-def O_LLM_openai(query):
-    client = OpenAI(api_key='')
-    messages = [{"role": "user","content": query}]
-    try:
-        chat_completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",messages=messages)
-        return chat_completion.choices[0].message.content
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        return None
-    
     
 def O_LLM(query, model):
-    if model == "gpt3":
-        output = O_LLM_openai(query)
-    elif model == "gemini":
+    if model == "gemini":
         output = O_LLM_gemini(query)
-    elif model == "mixtral":
-        output = O_LLM_Mixtral(query)
-    elif model == "llama3":
-        output = O_LLM_llama3(query)
     else:
         output = O_LLM()
     return output
@@ -705,7 +636,7 @@ import smtplib
 
 #------------------------------------------------------------------------------------------------------------------------------------------
 def convert_to_format(text,format):
-    model = "gpt3"
+    model = "gemini"
 
     prompt=f"{format} \n Convert the user_input into the given format\n{text}"
 
